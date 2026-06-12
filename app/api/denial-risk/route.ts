@@ -1,0 +1,15 @@
+import { NextRequest, NextResponse } from "next/server";
+import { computeDenialRisk } from "@/lib/denial-risk";
+
+export const runtime = "nodejs";
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const result = computeDenialRisk(body ?? {});
+    return NextResponse.json(result);
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+  }
+}
