@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import {
   CheckCircle2,
@@ -30,14 +32,16 @@ import {
   RECENT_ACTIVITY,
   PAYER_PERFORMANCE,
 } from "@/lib/mock-data";
-import { StatusBadge, RiskBadge } from "@/components/StatusBadge";
+// StatusBadge / RiskBadge intentionally not used in this view; activity items
+// render a lightweight type chip instead because RECENT_ACTIVITY does not
+// carry `status` or `risk` fields.
 
 const DENIAL_COLORS = ["#ef4444", "#f59e0b", "#8b5cf6", "#3b82f6", "#64748b"];
 
 const KPI = [
   {
     label: "Approved",
-    value: REQUESTS.filter((r) => r.status === "approved").length,
+    value: REQUESTS.filter((r) => r.status === "Approved").length,
     sub: "of all requests",
     Icon: CheckCircle2,
     tone: "from-emerald-500 to-teal-500",
@@ -45,7 +49,7 @@ const KPI = [
   },
   {
     label: "Denied",
-    value: REQUESTS.filter((r) => r.status === "denied").length,
+    value: REQUESTS.filter((r) => r.status === "Denied").length,
     sub: "requires follow-up",
     Icon: XCircle,
     tone: "from-rose-500 to-pink-500",
@@ -71,10 +75,10 @@ const KPI = [
 
 export default function DashboardPage() {
   const total = REQUESTS.length;
-  const approved = REQUESTS.filter((r) => r.status === "approved").length;
-  const denied = REQUESTS.filter((r) => r.status === "denied").length;
+  const approved = REQUESTS.filter((r) => r.status === "Approved").length;
+  const denied = REQUESTS.filter((r) => r.status === "Denied").length;
   const inProgress = REQUESTS.filter(
-    (r) => !["approved", "denied"].includes(r.status)
+    (r) => !["Approved", "Denied"].includes(r.status)
   ).length;
 
   return (
@@ -280,7 +284,7 @@ export default function DashboardPage() {
               >
                 <span className="text-slate-700">{p.payer}</span>
                 <span className="text-slate-500 tabular-nums">
-                  {p.approvalRate}% · {p.avgTurnaround}d
+                  {p.approval}% · {p.avgDays}d
                 </span>
               </li>
             ))}
@@ -316,13 +320,24 @@ export default function DashboardPage() {
                       {a.text}
                     </div>
                     <div className="text-[11px] text-slate-500">
-                      {a.time} · {a.case}
+                      {a.time}
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <StatusBadge status={a.status} withIcon={false} />
-                  <RiskBadge risk={a.risk} />
+                  <span
+                    className={`badge ring-1 ${
+                      a.type === "success"
+                        ? "bg-emerald-50 text-emerald-700 ring-emerald-100"
+                        : a.type === "danger"
+                          ? "bg-rose-50 text-rose-700 ring-rose-100"
+                          : a.type === "warning"
+                            ? "bg-amber-50 text-amber-700 ring-amber-100"
+                            : "bg-brand-50 text-brand-700 ring-brand-100"
+                    }`}
+                  >
+                    {a.type}
+                  </span>
                 </div>
               </li>
             ))}
